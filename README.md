@@ -4,8 +4,7 @@ Este repositório contém uma configuração completa do Terraform para provisio
 
 A configuração inclui:
 
-VCN (Virtual Cloud Network): CIDR: 10.5.0.0/16
-
+☁️ VCN (Virtual Cloud Network): CIDR: 10.5.0.0/16
 
 Internet Gateway e NAT Gateway configurados.
 Service Gateway para acesso a serviços da OCI.
@@ -16,19 +15,28 @@ Subnet Privada (10.5.2.0/24) com acesso à internet via NAT Gateway e Service Ga
 
 #
 
-Segurança:
+🔐 Segurança:
 
 Security Lists para tráfego público e privado.
 Network Security Group (NSG) configurado para a instância.
 
 #
 
-Instância Windows:
+🖥️ Instância Windows:
 
 Shape: VM.Standard.E5.Flex com 1 OCPU e 4 GB de RAM.
 Imagem personalizada do Windows Server 2019.
 Disco de boot de 50 GB (iSCSI).
+Disco Adicional de 50gb (Paravirtualized)
 Associada à subnet pública e ao NSG.
 
 
 `Este projeto é ideal para criar uma infraestrutura básica e segura na OCI, com suporte para instâncias públicas e privadas.`
+
+## :memo: License
+
+This project is under [MIT License](./LICENSE).
+
+<p align='center'>
+  Do you like my open source projects? <a href='https://stars.github.com/nominate/'>Nominate me to Github Stars ⭐</a>
+</p>
