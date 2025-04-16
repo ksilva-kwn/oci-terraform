@@ -13,7 +13,7 @@ data "oci_identity_availability_domains" "ads" {
 resource "oci_core_virtual_network" "vcn" {
   compartment_id = var.compartment_ocid
   display_name   = "VCN_TERRAFORM"
-  cidr_block     = "10.5.0.0/16"
+  cidr_block     = "10.0.0.0/16"
   dns_label      = "vcnterraform"
 }
 
@@ -63,7 +63,7 @@ resource "oci_core_route_table" "private_route" {
   }
 
   route_rules {
-    destination       = "all-gru-services-in-oracle-services-network" # Corrigido
+    destination       = "all-gru-services-in-oracle-services-network"
     destination_type  = "SERVICE_CIDR_BLOCK"
     network_entity_id = oci_core_service_gateway.service_gateway.id
   }
@@ -73,7 +73,7 @@ resource "oci_core_subnet" "public_subnet" {
   compartment_id      = var.compartment_ocid
   vcn_id              = oci_core_virtual_network.vcn.id
   display_name        = "Public Subnet"
-  cidr_block          = "10.5.1.0/24"
+  cidr_block          = "10.0.1.0/24"
   route_table_id      = oci_core_route_table.public_route.id
   security_list_ids   = [oci_core_security_list.public_security_list.id]
   dns_label           = "publicsubnet"
@@ -83,7 +83,7 @@ resource "oci_core_subnet" "private_subnet" {
   compartment_id      = var.compartment_ocid
   vcn_id              = oci_core_virtual_network.vcn.id
   display_name        = "Private Subnet"
-  cidr_block          = "10.5.2.0/24"
+  cidr_block          = "10.0.2.0/24"
   route_table_id      = oci_core_route_table.private_route.id
   security_list_ids   = [oci_core_security_list.private_security_list.id]
   dns_label           = "privatesubnet"
@@ -143,7 +143,7 @@ resource "oci_core_instance" "windows_vm" {
 
   create_vnic_details {
     subnet_id          = oci_core_subnet.public_subnet.id
-    assign_public_ip   = true
+    assign_public_ip   = false # Alterado para não atribuir IP público
     display_name       = "Terraform Windows VM VNIC"
     hostname_label     = "windowsvm"
     nsg_ids            = [oci_core_network_security_group.nsg.id]
@@ -158,27 +158,17 @@ resource "oci_core_instance" "windows_vm" {
     ocpus = 1
     memory_in_gbs = 4
   }
-
-  metadata = {
-    "user_data" = base64encode(<<-EOF
-      <powershell>
-        # Define a senha do administrador para RDP
-        net user Administrator "teste123!"
-      </powershell>
-    EOF
-    )
-  }
 }
 
 resource "oci_core_volume" "additional_disk" {
   compartment_id      = var.compartment_ocid
   availability_domain = tolist(data.oci_identity_availability_domains.ads.availability_domains)[0].name
-  display_name        = "Additional Disk"
+  display_name        = "Data"
   size_in_gbs         = 50
 }
 
 resource "oci_core_volume_attachment" "volume_attachment" {
   instance_id    = oci_core_instance.windows_vm.id
   volume_id      = oci_core_volume.additional_disk.id
-  attachment_type = "iscsi"
+  attachment_type = "paravirtualized"
 }
